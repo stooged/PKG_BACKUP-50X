@@ -21,7 +21,7 @@ void makeini()
     {
     int ini = open(ini_file_path, O_WRONLY | O_CREAT | O_TRUNC, 0777);
     char *buffer;
-    buffer ="To backup updates to the usb hdd uncomment the line below.\r\n//BACKUP_UPDATES\r\n\r\nTo backup DLC to the usb hdd uncomment the line below.\r\n//BACKUP_DLC\r\n\r\nTo use this list as a list of games you want to backup not ignore then uncomment the line below.\r\n//BACKUP_LIST\r\n\r\nExample ignore or backup usage.\r\n\r\nCUSAXXXX1\r\nCUSAXXXX2\r\nCUSAXXXX3\r\n";
+    buffer ="To backup official pkg files uncomment the line below.\r\n//BACKUP_RETAIL\r\n\r\nTo backup updates to the usb hdd uncomment the line below.\r\n//BACKUP_UPDATES\r\n\r\nTo backup DLC to the usb hdd uncomment the line below.\r\n//BACKUP_DLC\r\n\r\nTo use this list as a list of games you want to backup not ignore then uncomment the line below.\r\n//BACKUP_LIST\r\n\r\nExample ignore or backup usage.\r\n\r\nCUSAXXXX1\r\nCUSAXXXX2\r\nCUSAXXXX3\r\n";
     write(ini, buffer, strlen(buffer));
     close(ini);
     }
@@ -201,6 +201,34 @@ int isdlc()
 }
 
 
+int isretpkg()
+{
+        if (file_exists(ini_file_path)) 
+        {
+            int cfile = open(ini_file_path, O_RDONLY, 0);
+            char *idata = read_string(cfile);
+            close(cfile);
+            if (strlen(idata) != 0)
+            {
+                if(strstr(idata, "//BACKUP_RETAIL") != NULL) 
+                {
+                   return 0;
+                }
+                else if(strstr(idata, "BACKUP_RETAIL") != NULL) 
+                {
+                   return 1;
+                }
+             return 0;
+             }
+        return 0;
+        }
+        else
+        {
+             return 0;
+        }
+}
+
+
 void copyFile(char *sourcefile, char* destfile)
 {
     int src = open(sourcefile, O_RDONLY, 0);
@@ -243,7 +271,7 @@ void copyFile(char *sourcefile, char* destfile)
 
 void copypkg(char *sourcepath, char* destpath)
 {       
-    if (isfpkg(sourcepath) == 0 || strstr(sourcepath, "ac.pkg") != NULL) 
+    if (isfpkg(sourcepath) == 0 || strstr(sourcepath, "ac.pkg") != NULL || isretpkg()) 
 	{
 		char cmsg[1024];
 		char dstfile[256];
